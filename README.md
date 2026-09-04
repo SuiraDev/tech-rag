@@ -1,4 +1,4 @@
-# Tech RAG — API
+# Resenha — API
 
 API NestJS para indexar documentos, buscar conteúdo no Qdrant e responder perguntas com RAG usando modelos locais do Ollama. A interface web está no projeto [`web`](./web/README.md).
 

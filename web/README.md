@@ -1,6 +1,6 @@
-# Tech RAG — Web
+# Resenha — Web
 
-Interface Next.js da aplicação Tech RAG. Por ela é possível enviar documentos e conversar com o conteúdo indexado pela API.
+Interface Next.js da aplicação Resenha. Por ela é possível enviar documentos e conversar com o conteúdo indexado pela API.
 
 ## Pré-requisitos
 
