@@ -9,4 +9,9 @@ export class HealthController {
   getHealth(): string {
     return this.healthService.getMessage();
   }
+
+  @Get('health')
+  getDetailedHealth() {
+    return this.healthService.check();
+  }
 }
