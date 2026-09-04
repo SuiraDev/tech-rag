@@ -13,7 +13,7 @@ import {
   type RagProgress,
 } from '../../application/rag-job.service';
 import { RagService } from '../../application/rag.service';
-import type { AskQuestionRequestDto } from './dto/ask-question-request.dto';
+import { AskQuestionRequestDto } from './dto/ask-question-request.dto';
 
 @Controller('rag')
 export class RagController {
@@ -34,9 +34,19 @@ export class RagController {
       body.question,
       body.conversationId,
     );
+    const full = await this.conversationsService.get(conversation.id);
+    const history = (full.messages ?? [])
+      .slice(0, -1)
+      .slice(-8)
+      .map((message) => ({
+        role: message.role,
+        content: message.content,
+      }));
     const jobId = this.ragJobService.create();
     void this.ragService
-      .ask(body, (progress) => this.ragJobService.update(jobId, progress))
+      .ask({ ...body, history }, (progress) =>
+        this.ragJobService.update(jobId, progress),
+      )
       .then((answer) => {
         return this.conversationsService
           .addAnswer(conversation.id, answer)

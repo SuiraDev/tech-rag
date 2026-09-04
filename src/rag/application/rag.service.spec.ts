@@ -46,8 +46,41 @@ describe('RagService', () => {
           source: 'study/nestjs/providers.md',
           chunkIndex: 0,
           score: 0.92,
+          excerpt: 'Providers são classes que podem ser injetadas.',
         },
       ],
     });
+  });
+
+  it('caps the source excerpt at 300 characters', async () => {
+    const longContent = `${'Conteúdo relevante. '.repeat(30)}fim.`;
+    const vectorStoreService = {
+      search: () =>
+        Promise.resolve([
+          {
+            id: 'point-1',
+            score: 0.81,
+            payload: {
+              content: longContent,
+              documentId: 'document-1',
+              filename: 'longo.md',
+              source: 'study/longo.md',
+              mimeType: 'text/markdown',
+              chunkIndex: 2,
+              totalChunks: 3,
+            },
+          },
+        ]),
+    } as unknown as VectorStoreService;
+    const ollamaService = {
+      chat: () => Promise.resolve('Resumo do conteúdo longo.'),
+    } as unknown as OllamaService;
+    const ragService = new RagService(vectorStoreService, ollamaService);
+
+    const answer = await ragService.ask({ question: 'Resuma o material.' });
+    const excerpt = answer.sources[0]?.excerpt ?? '';
+
+    expect(excerpt.length).toBeLessThanOrEqual(301);
+    expect(excerpt.endsWith('…')).toBe(true);
   });
 });

@@ -4,6 +4,7 @@ export interface RagSource {
   page?: number;
   chunkIndex: number;
   score: number;
+  excerpt: string;
 }
 
 export interface RagAnswer {
