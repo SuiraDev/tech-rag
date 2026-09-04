@@ -1,0 +1,605 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#09090b" />
+    <meta
+      name="description"
+      content="Resenha — assistente local de estudos. Indexe seus PDFs e notas, pergunte e receba respostas com as fontes citadas. 100% local e privado."
+    />
+    <title>Resenha — Estude com suas fontes</title>
+    <script src="https://code.iconify.design/iconify-icon/3.0.0/iconify-icon.min.js"></script>
+    <style>
+      /* Reserva o espaço do ícone antes do web component hidratar (evita layout shift) */
+      iconify-icon {
+        display: inline-block;
+        width: 1em;
+        height: 1em;
+        vertical-align: -0.125em;
+      }
+      :root {
+        color-scheme: dark;
+        --ink: #09090b;
+        --panel: #101014;
+        --accent: #bef264;
+        --accent-soft: #d9f99d;
+        --line: rgba(255, 255, 255, 0.09);
+        --muted: #a1a1aa;
+        --faint: #71717a;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        background:
+          radial-gradient(640px 320px at 12% -4%, rgba(52, 211, 153, 0.09), transparent 62%),
+          radial-gradient(760px 380px at 88% 6%, rgba(139, 92, 246, 0.1), transparent 62%),
+          radial-gradient(560px 420px at 50% 108%, rgba(190, 242, 100, 0.05), transparent 62%),
+          var(--ink);
+        color: #f4f4f5;
+        font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        line-height: 1.6;
+        overflow-x: clip;
+      }
+      ::selection {
+        background: var(--accent);
+        color: var(--ink);
+      }
+      .display {
+        font-family: Georgia, "Times New Roman", serif;
+        letter-spacing: -0.01em;
+        line-height: 1.1;
+      }
+      .wrap {
+        width: 100%;
+        max-width: 72rem;
+        margin-inline: auto;
+        padding-inline: 1.25rem;
+      }
+
+      /* ---------- nav ---------- */
+      header.nav {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        backdrop-filter: blur(12px);
+        background: rgba(9, 9, 11, 0.8);
+        border-bottom: 1px solid var(--line);
+      }
+      .nav-inner {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        height: 3.75rem;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        color: #fafafa;
+        font-weight: 800;
+        text-decoration: none;
+      }
+      .brand-mark {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.75rem;
+        height: 1.75rem;
+        border-radius: 0.5rem;
+        background: var(--accent);
+        color: var(--ink);
+        font-size: 1rem;
+      }
+      .brand small {
+        display: block;
+        font-size: 0.65rem;
+        font-weight: 500;
+        color: var(--faint);
+      }
+      nav.links {
+        display: none;
+        align-items: center;
+        gap: 1.5rem;
+        margin-inline: auto;
+      }
+      nav.links a {
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 0.875rem;
+        font-weight: 500;
+      }
+      nav.links a:hover {
+        color: #fafafa;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        border-radius: 999px;
+        padding: 0.6rem 1.25rem;
+        font-size: 0.875rem;
+        font-weight: 700;
+        text-decoration: none;
+        transition: transform 0.15s ease, background 0.15s ease;
+        white-space: nowrap;
+      }
+      .btn:active {
+        transform: scale(0.97);
+      }
+      .btn-primary {
+        background: var(--accent);
+        color: var(--ink);
+        box-shadow: 0 8px 30px rgba(190, 242, 100, 0.25);
+      }
+      .btn-primary:hover {
+        background: var(--accent-soft);
+      }
+      .btn-ghost {
+        border: 1px solid var(--line);
+        color: #e4e4e7;
+        background: rgba(255, 255, 255, 0.03);
+      }
+      .btn-ghost:hover {
+        border-color: rgba(190, 242, 100, 0.4);
+      }
+      .nav-cta {
+        margin-left: auto;
+        padding: 0.5rem 1rem;
+      }
+
+      /* ---------- hero ---------- */
+      .hero {
+        padding: 4rem 0 3rem;
+        text-align: center;
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.04);
+        border-radius: 999px;
+        padding: 0.35rem 0.85rem;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--muted);
+      }
+      .pill .dot {
+        width: 0.4rem;
+        height: 0.4rem;
+        border-radius: 999px;
+        background: var(--accent);
+        animation: pulse 2s ease-in-out infinite;
+      }
+      @keyframes pulse {
+        50% {
+          opacity: 0.35;
+        }
+      }
+      .hero h1 {
+        margin-top: 1.5rem;
+        font-size: 2.4rem;
+      }
+      .hero p.lead {
+        margin: 1rem auto 0;
+        max-width: 36rem;
+        color: var(--muted);
+        font-size: 1rem;
+      }
+      .hero-ctas {
+        margin-top: 2rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        justify-content: center;
+      }
+      .hero-badges {
+        margin-top: 2.25rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem 1.5rem;
+        justify-content: center;
+        font-size: 0.8rem;
+        color: var(--faint);
+      }
+      .hero-badges span {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+      }
+      .hero-badges iconify-icon {
+        color: var(--accent);
+        font-size: 0.95rem;
+      }
+
+      /* ---------- terminal ---------- */
+      .terminal {
+        margin: 2.5rem auto 0;
+        max-width: 44rem;
+        text-align: left;
+        border: 1px solid var(--line);
+        border-radius: 1rem;
+        background: rgba(16, 16, 20, 0.9);
+        box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+        overflow: hidden;
+      }
+      .terminal-bar {
+        display: flex;
+        gap: 0.4rem;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid var(--line);
+      }
+      .terminal-bar i {
+        width: 0.7rem;
+        height: 0.7rem;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.14);
+      }
+      .terminal pre {
+        padding: 1.1rem 1.25rem 1.3rem;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 0.8rem;
+        line-height: 1.75;
+        overflow-x: auto;
+        color: #d4d4d8;
+      }
+      .terminal .c {
+        color: #63636b;
+      }
+      .terminal .p {
+        color: var(--accent-soft);
+      }
+
+      /* ---------- sections ---------- */
+      section.block {
+        padding: 3.5rem 0;
+      }
+      .kicker {
+        color: var(--accent-soft);
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+      }
+      .block h2 {
+        margin-top: 0.6rem;
+        font-size: 1.9rem;
+      }
+      .block > .wrap > p.sub {
+        margin-top: 0.75rem;
+        max-width: 38rem;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+      .steps {
+        margin-top: 2rem;
+        display: grid;
+        gap: 0.9rem;
+      }
+      .step {
+        border: 1px solid var(--line);
+        border-radius: 1.1rem;
+        background: rgba(255, 255, 255, 0.03);
+        padding: 1.4rem;
+      }
+      .step-num {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.75rem;
+        height: 1.75rem;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid var(--line);
+        font-size: 0.8rem;
+        font-weight: 800;
+        color: var(--accent-soft);
+      }
+      .step h3 {
+        margin-top: 0.9rem;
+        font-size: 1.05rem;
+      }
+      .step p {
+        margin-top: 0.4rem;
+        font-size: 0.875rem;
+        color: var(--muted);
+      }
+      .grid-features {
+        margin-top: 2rem;
+        display: grid;
+        gap: 0.9rem;
+      }
+      .feature {
+        border: 1px solid var(--line);
+        border-radius: 1.1rem;
+        background: rgba(255, 255, 255, 0.03);
+        padding: 1.4rem;
+        transition: border-color 0.15s ease, transform 0.15s ease;
+      }
+      .feature:hover {
+        border-color: rgba(190, 242, 100, 0.35);
+        transform: translateY(-2px);
+      }
+      .feature .icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.25rem;
+        height: 2.25rem;
+        border-radius: 0.75rem;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid var(--line);
+        font-size: 1.1rem;
+      }
+      .feature h3 {
+        margin-top: 0.9rem;
+        font-size: 1rem;
+      }
+      .feature p {
+        margin-top: 0.4rem;
+        font-size: 0.875rem;
+        color: var(--muted);
+      }
+      .stack {
+        margin-top: 2rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+      }
+      .stack span {
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.04);
+        border-radius: 0.7rem;
+        padding: 0.5rem 0.9rem;
+        font-size: 0.825rem;
+        font-weight: 600;
+        color: #e4e4e7;
+      }
+      .cta-box {
+        border: 1px solid rgba(190, 242, 100, 0.25);
+        background: rgba(190, 242, 100, 0.06);
+        border-radius: 1.25rem;
+        padding: 2rem 1.5rem;
+        text-align: center;
+      }
+      .cta-box h2 {
+        font-size: 1.7rem;
+      }
+      .cta-box p {
+        margin: 0.75rem auto 0;
+        max-width: 34rem;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+      .cta-box .hero-ctas {
+        margin-top: 1.5rem;
+      }
+      footer {
+        border-top: 1px solid var(--line);
+        padding: 2rem 0 calc(2rem + env(safe-area-inset-bottom));
+        color: var(--faint);
+        font-size: 0.8rem;
+      }
+      footer .wrap {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem 1.5rem;
+        align-items: center;
+        justify-content: space-between;
+      }
+      footer a {
+        color: var(--muted);
+        text-decoration: none;
+      }
+      footer a:hover {
+        color: var(--accent-soft);
+      }
+
+      @media (min-width: 640px) {
+        nav.links {
+          display: flex;
+        }
+        .nav-cta {
+          margin-left: 0;
+        }
+        .hero {
+          padding: 5.5rem 0 4rem;
+        }
+        .hero h1 {
+          font-size: 3.4rem;
+        }
+        .hero p.lead {
+          font-size: 1.1rem;
+        }
+        .block h2 {
+          font-size: 2.25rem;
+        }
+        .steps {
+          grid-template-columns: repeat(3, 1fr);
+        }
+        .grid-features {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .cta-box {
+          padding: 3rem;
+        }
+      }
+      @media (min-width: 1024px) {
+        .grid-features {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+        .pill .dot {
+          animation: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="nav">
+      <div class="wrap nav-inner">
+        <a class="brand" href="#topo" aria-label="Resenha — início">
+          <span class="brand-mark" aria-hidden="true"><iconify-icon icon="lucide:sparkles" aria-hidden="true"></iconify-icon></span>
+          <span>Resenha<small>estudo local e privado</small></span>
+        </a>
+        <nav class="links" aria-label="Seções">
+          <a href="#como-funciona">Como funciona</a>
+          <a href="#recursos">Recursos</a>
+          <a href="#stack">Stack</a>
+          <a href="#comecar">Começar</a>
+        </nav>
+        <a class="btn btn-primary nav-cta" href="https://github.com/SuiraDev/tech-rag">GitHub</a>
+      </div>
+    </header>
+
+    <main id="topo">
+      <section class="hero">
+        <div class="wrap">
+          <p class="pill"><span class="dot" aria-hidden="true"></span>RAG local e privado</p>
+          <h1 class="display">Estude com suas fontes.</h1>
+          <p class="lead">
+            O Resenha indexa seus PDFs e notas, responde perguntas usando
+            <strong>apenas</strong> o que você enviou — e mostra os trechos
+            exatos que sustentam cada resposta. Tudo rodando na sua máquina,
+            sem nuvem.
+          </p>
+          <div class="hero-ctas">
+            <a class="btn btn-primary" href="https://github.com/SuiraDev/tech-rag">Ver o código</a>
+            <a class="btn btn-ghost" href="#como-funciona">Como funciona</a>
+          </div>
+          <div class="hero-badges">
+            <span><iconify-icon icon="lucide:quote" aria-hidden="true"></iconify-icon>Fontes citadas</span>
+            <span><iconify-icon icon="lucide:shield-check" aria-hidden="true"></iconify-icon>100% local</span>
+            <span><iconify-icon icon="lucide:history" aria-hidden="true"></iconify-icon>Lembra o contexto</span>
+          </div>
+
+          <div class="terminal" role="img" aria-label="Exemplo de comandos para rodar o Resenha localmente">
+            <div class="terminal-bar" aria-hidden="true"><i></i><i></i><i></i></div>
+            <pre><span class="c"># 1. Suba o banco vetorial</span>
+<span class="p">$</span> docker compose up -d
+
+<span class="c"># 2. Baixe os modelos locais</span>
+<span class="p">$</span> ollama pull qwen3:4b &amp;&amp; ollama pull nomic-embed-text
+
+<span class="c"># 3. Rode a API + o web</span>
+<span class="p">$</span> npm install &amp;&amp; npm run start:dev
+<span class="p">$</span> <span class="c"># em outro terminal:</span> cd web &amp;&amp; npm install &amp;&amp; npm run dev</pre>
+          </div>
+        </div>
+      </section>
+
+      <section class="block" id="como-funciona">
+        <div class="wrap">
+          <p class="kicker">Como funciona</p>
+          <h2 class="display">Do PDF à resposta em 3 passos.</h2>
+          <p class="sub">Sem conta, sem upload para terceiros: seus documentos viram vetores pesquisáveis no Qdrant, na sua máquina.</p>
+          <div class="steps">
+            <article class="step">
+              <span class="step-num">1</span>
+              <h3>Indexe</h3>
+              <p>Envie PDFs com texto selecionável ou cole notas em Markdown. Cada trecho vira um vetor com embeddings locais.</p>
+            </article>
+            <article class="step">
+              <span class="step-num">2</span>
+              <h3>Pergunte</h3>
+              <p>Converse no chat com histórico: sua pergunta vira vetor, os trechos relevantes são recuperados e o modelo local redige a resposta.</p>
+            </article>
+            <article class="step">
+              <span class="step-num">3</span>
+              <h3>Confira</h3>
+              <p>Cada resposta chega com as fontes ao lado — arquivo, página e trecho citado — para você verificar, não decorar.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="block" id="recursos">
+        <div class="wrap">
+          <p class="kicker">Recursos</p>
+          <h2 class="display">Feito para estudar de verdade.</h2>
+          <div class="grid-features">
+            <article class="feature">
+              <span class="icon" aria-hidden="true"><iconify-icon icon="lucide:quote" width="18" height="18" aria-hidden="true"></iconify-icon></span>
+              <h3>Respostas com fontes</h3>
+              <p>Citações com arquivo, página e trecho. Se o conteúdo não estiver nos seus documentos, ele diz — não inventa.</p>
+            </article>
+            <article class="feature">
+              <span class="icon" aria-hidden="true"><iconify-icon icon="lucide:lock" width="18" height="18" aria-hidden="true"></iconify-icon></span>
+              <h3>100% local e privado</h3>
+              <p>Modelos via Ollama, vetores no Qdrant, histórico em SQLite. Nada sai da sua máquina.</p>
+            </article>
+            <article class="feature">
+              <span class="icon" aria-hidden="true"><iconify-icon icon="lucide:messages-square" width="18" height="18" aria-hidden="true"></iconify-icon></span>
+              <h3>Conversas com memória</h3>
+              <p>Histórico persistente por conversa: o contexto das perguntas anteriores entra no prompt.</p>
+            </article>
+            <article class="feature">
+              <span class="icon" aria-hidden="true"><iconify-icon icon="lucide:zap" width="18" height="18" aria-hidden="true"></iconify-icon></span>
+              <h3>Tempo real</h3>
+              <p>Progresso da indexação e da resposta via SSE, com opção de interromper e tentar de novo.</p>
+            </article>
+            <article class="feature">
+              <span class="icon" aria-hidden="true"><iconify-icon icon="lucide:library" width="18" height="18" aria-hidden="true"></iconify-icon></span>
+              <h3>Biblioteca observável</h3>
+              <p>Fila de PDFs com status por arquivo e contagem de documentos e trechos indexados.</p>
+            </article>
+            <article class="feature">
+              <span class="icon" aria-hidden="true"><iconify-icon icon="lucide:stethoscope" width="18" height="18" aria-hidden="true"></iconify-icon></span>
+              <h3>Health detalhado</h3>
+              <p>Endpoint de saúde que checa banco, Qdrant e Ollama com latência — direto e sem mistério.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="block" id="stack">
+        <div class="wrap">
+          <p class="kicker">Stack</p>
+          <h2 class="display">Ferramentas que você já conhece.</h2>
+          <p class="sub">Código aberto de ponta a ponta: rode, inspecione e modifique à vontade.</p>
+          <div class="stack">
+            <span>Next.js + React</span>
+            <span>NestJS</span>
+            <span>Ollama (qwen3 + nomic-embed-text)</span>
+            <span>Qdrant</span>
+            <span>Prisma + SQLite</span>
+            <span>LangChain</span>
+            <span>Tailwind CSS</span>
+            <span>TypeScript</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="block" id="comecar">
+        <div class="wrap">
+          <div class="cta-box">
+            <h2 class="display">Bora resenhar seus documentos?</h2>
+            <p>Pré-requisitos: Node.js 20+, Docker e Ollama. O passo a passo completo está no README do repositório.</p>
+            <div class="hero-ctas">
+              <a class="btn btn-primary" href="https://github.com/SuiraDev/tech-rag">Começar pelo GitHub</a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="wrap">
+        <span><strong>Resenha</strong> — estudo local e privado.</span>
+        <a href="https://github.com/SuiraDev/tech-rag">github.com/SuiraDev/tech-rag</a>
+      </div>
+    </footer>
+  </body>
+</html>
