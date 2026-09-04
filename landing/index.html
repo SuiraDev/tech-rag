@@ -363,6 +363,42 @@
         font-weight: 600;
         color: #e4e4e7;
       }
+      .alert {
+        margin-top: 1.5rem;
+        display: flex;
+        gap: 0.9rem;
+        border: 1px solid rgba(252, 211, 77, 0.3);
+        background: rgba(252, 211, 77, 0.06);
+        border-radius: 1.1rem;
+        padding: 1.25rem 1.4rem;
+        text-align: left;
+      }
+      .alert iconify-icon {
+        flex-shrink: 0;
+        margin-top: 0.15rem;
+        font-size: 1.25rem;
+        color: #fcd34d;
+      }
+      .alert strong {
+        display: block;
+        font-size: 0.95rem;
+        color: #fde68a;
+      }
+      .alert p {
+        margin-top: 0.35rem;
+        font-size: 0.875rem;
+        color: var(--muted);
+      }
+      .alert code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 0.8rem;
+        background: rgba(255, 255, 255, 0.07);
+        border: 1px solid var(--line);
+        border-radius: 0.4rem;
+        padding: 0.1rem 0.45rem;
+        color: #e4e4e7;
+        white-space: nowrap;
+      }
       .cta-box {
         border: 1px solid rgba(190, 242, 100, 0.25);
         background: rgba(190, 242, 100, 0.06);
@@ -578,6 +614,20 @@
             <span>LangChain</span>
             <span>Tailwind CSS</span>
             <span>TypeScript</span>
+          </div>
+          <div class="alert" role="note">
+            <iconify-icon icon="lucide:gauge" aria-hidden="true"></iconify-icon>
+            <div>
+              <strong>Quer respostas melhores? Suba o modelo de chat.</strong>
+              <p>
+                O padrão <code>qwen3:4b</code> é leve e rápido. Para mais qualidade,
+                use o <code>qwen3:8b</code> (exige mais RAM/VRAM) ou outro modelo
+                compatível com o Ollama: baixe com
+                <code>ollama pull qwen3:8b</code>, ajuste
+                <code>OLLAMA_CHAT_MODEL=qwen3:8b</code> no <code>.env</code> e reinicie
+                a API — sem reindexar. Só reindexe se trocar o modelo de embeddings.
+              </p>
+            </div>
           </div>
         </div>
       </section>
