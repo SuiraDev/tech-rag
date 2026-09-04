@@ -20,6 +20,11 @@ export interface PdfIngestion {
   indexedChunks: number;
 }
 
+export interface LibraryStats {
+  indexedChunks: number;
+  indexedDocuments: number;
+}
+
 type IndexingProgressReporter = (
   progress: Omit<IndexingProgress, 'jobId'>,
 ) => void;
@@ -96,5 +101,10 @@ export class DocumentsService {
     });
 
     return { documents, chunks, indexedChunks };
+  }
+
+  async getStats(): Promise<LibraryStats> {
+    const stats = await this.vectorStoreService.getStats();
+    return { indexedChunks: stats.chunks, indexedDocuments: stats.documents };
   }
 }

@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Get,
   MessageEvent,
   Param,
   Post,
@@ -17,7 +18,7 @@ import {
   IndexingJobService,
   type IndexingProgress,
 } from '../../application/indexing-job.service';
-import type { IngestMarkdownRequestDto } from './dto/ingest-markdown-request.dto';
+import { IngestMarkdownRequestDto } from './dto/ingest-markdown-request.dto';
 
 @Controller('documents')
 export class DocumentsController {
@@ -29,6 +30,11 @@ export class DocumentsController {
   @Post('markdown')
   ingestMarkdown(@Body() body: IngestMarkdownRequestDto) {
     return this.documentsService.ingestMarkdown(body);
+  }
+
+  @Get('stats')
+  getStats() {
+    return this.documentsService.getStats();
   }
 
   @Post('pdf')

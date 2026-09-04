@@ -74,7 +74,8 @@ describe('DocumentsService', () => {
     expect(ingestion.chunks.map((chunk) => chunk.metadata.page)).toEqual([
       1, 2,
     ]);
-    expect(ingestion.chunks.map((chunk) => chunk.totalChunks)).toEqual([2, 2]);
+    expect(ingestion.chunks.map((chunk) => chunk.chunkIndex)).toEqual([0, 0]);
+    expect(ingestion.chunks.map((chunk) => chunk.totalChunks)).toEqual([1, 1]);
   });
 
   it('rejects empty Markdown content', async () => {

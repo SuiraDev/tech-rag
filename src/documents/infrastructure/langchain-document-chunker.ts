@@ -16,16 +16,24 @@ export class LangChainDocumentChunker {
       chunkSize: this.chunkSize,
       chunkOverlap: this.chunkOverlap,
     });
-    const splitDocuments = await splitter.createDocuments(
-      documents.map((document) => document.content),
-      documents.map((document) => document.metadata),
-    );
+    const chunks: DocumentChunk[] = [];
 
-    return splitDocuments.map((splitDocument, chunkIndex) => ({
-      content: splitDocument.pageContent,
-      metadata: splitDocument.metadata as StudyDocument['metadata'],
-      chunkIndex,
-      totalChunks: splitDocuments.length,
-    }));
+    for (const document of documents) {
+      const splitDocuments = await splitter.createDocuments(
+        [document.content],
+        [document.metadata],
+      );
+
+      splitDocuments.forEach((splitDocument, index) => {
+        chunks.push({
+          content: splitDocument.pageContent,
+          metadata: splitDocument.metadata as StudyDocument['metadata'],
+          chunkIndex: index,
+          totalChunks: splitDocuments.length,
+        });
+      });
+    }
+
+    return chunks;
   }
 }
