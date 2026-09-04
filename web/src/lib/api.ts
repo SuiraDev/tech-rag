@@ -6,6 +6,7 @@ export interface RagSource {
   page?: number;
   chunkIndex: number;
   score: number;
+  excerpt?: string;
 }
 
 export interface RagAnswer {
@@ -46,6 +47,21 @@ export interface RagProgress {
 
 export interface MarkdownIngestion {
   indexedChunks: number;
+}
+
+export interface LibraryStats {
+  indexedChunks: number;
+  indexedDocuments: number;
+}
+
+export async function getLibraryStats(): Promise<LibraryStats> {
+  const response = await fetch(`${apiUrl}/documents/stats`);
+
+  if (!response.ok) {
+    throw new Error("Não foi possível verificar a biblioteca.");
+  }
+
+  return response.json() as Promise<LibraryStats>;
 }
 
 export type IndexingStage =
@@ -113,6 +129,42 @@ export async function getConversation(id: string): Promise<Conversation> {
   }
 
   return response.json() as Promise<Conversation>;
+}
+
+export async function deleteConversation(id: string): Promise<void> {
+  const response = await fetch(`${apiUrl}/conversations/${id}`, {
+    method: "DELETE",
+  });
+
+  if (!response.ok) {
+    throw new Error("Não foi possível excluir a conversa.");
+  }
+}
+
+export interface HealthCheck {
+  status: "up" | "down";
+  latencyMs?: number;
+  detail?: string;
+}
+
+export interface HealthReport {
+  status: "ok" | "degraded";
+  timestamp: string;
+  checks: {
+    database: HealthCheck;
+    qdrant: HealthCheck;
+    ollama: HealthCheck;
+  };
+}
+
+export async function getHealth(): Promise<HealthReport> {
+  const response = await fetch(`${apiUrl}/health`);
+
+  if (!response.ok) {
+    throw new Error("API indisponível.");
+  }
+
+  return response.json() as Promise<HealthReport>;
 }
 
 export function subscribeToRag(
