@@ -29,6 +29,10 @@ jobs:
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
+        with:
+          # Habilita o Pages automaticamente via GITHUB_TOKEN
+          # (não requer acesso manual em Settings > Pages).
+          enablement: true
 
       - name: Upload landing
         uses: actions/upload-pages-artifact@v3
