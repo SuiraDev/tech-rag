@@ -64,9 +64,13 @@ export class ConversationsService {
     );
   }
 
-  async list(): Promise<Conversation[]> {
+  async list(take = 50, skip = 0): Promise<Conversation[]> {
+    const safeTake = Math.min(100, Math.max(1, Math.trunc(take) || 50));
+    const safeSkip = Math.max(0, Math.trunc(skip) || 0);
     const conversations = await this.prisma.conversation.findMany({
       orderBy: { updatedAt: 'desc' },
+      take: safeTake,
+      skip: safeSkip,
     });
 
     return conversations.map((conversation: PersistedConversation) =>
@@ -92,6 +96,18 @@ export class ConversationsService {
     };
   }
 
+  async remove(id: string): Promise<void> {
+    const conversation = await this.prisma.conversation.findUnique({
+      where: { id },
+    });
+
+    if (!conversation) {
+      throw new NotFoundException('Conversation not found');
+    }
+
+    await this.prisma.conversation.delete({ where: { id } });
+  }
+
   private async addMessage(
     conversationId: string,
     role: MessageRole,
@@ -109,7 +125,7 @@ export class ConversationsService {
       }),
       this.prisma.conversation.update({
         where: { id: conversationId },
-        data: {},
+        data: { updatedAt: new Date() },
       }),
     ]);
   }
