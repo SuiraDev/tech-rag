@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+@source "../../node_modules/streamdown/dist/*.js";
+@source "../../node_modules/@streamdown/code/dist/*.js";
+
+@import "streamdown/styles.css";
+
 @theme {
   --color-ink: #09090b;
   --color-panel: #101014;

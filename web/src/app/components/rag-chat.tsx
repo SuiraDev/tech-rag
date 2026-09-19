@@ -21,6 +21,7 @@ import {
 import { SourceGrid } from "./source-card";
 import { ThinkingSteps } from "./thinking-steps";
 import { AppIcon } from "./app-icon";
+import { Markdown } from "./markdown";
 
 interface Message {
   id: string;
@@ -529,7 +530,10 @@ export function RagChat({
 
                   {message.answer ? (
                     <div className="min-w-0 text-[15px] leading-7 break-words text-zinc-200">
-                      <p className="whitespace-pre-wrap break-words">{message.answer.answer}</p>
+                      <Markdown
+                        content={message.answer.answer}
+                        isAnimating={isLoading && message.id === activeMessageIdRef.current}
+                      />
                       <div className="mt-3 flex items-center gap-2">
                         <button
                           aria-live="polite"
